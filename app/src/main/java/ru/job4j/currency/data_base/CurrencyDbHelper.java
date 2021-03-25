@@ -147,10 +147,9 @@ public class CurrencyDbHelper extends SQLiteOpenHelper {
         cursor.close();
         return result;
     }
-    public List<Item> getItems(Item item) {
+    public List<Item> getItems(String currency) {
         List<Item> result = new ArrayList<>();
-        if (item != null) {
-            String currency = item.getCurrency();
+        if (currency != null) {
             Cursor cursor = readableDb.query(currency + TAB, null, null,
                 null, null, null, null);
             cursor.moveToFirst();

@@ -16,13 +16,13 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import ru.job4j.currency.BuildConfig;
 import ru.job4j.currency.R;
 import ru.job4j.currency.data_base.CurrencyDbHelper;
+import ru.job4j.currency.data_base.DbSchema;
 import ru.job4j.currency.interfaces.JsonHolderApi;
 import ru.job4j.currency.master.SpinnerMaster;
 import ru.job4j.currency.adapter.CurrencyAdapter;
 import ru.job4j.currency.model.Currency;
 import ru.job4j.currency.model.Item;
 import ru.job4j.currency.service.CurrencyPullService;
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -33,14 +33,11 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
-import android.widget.TextView;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private static CurrencyDbHelper helper;
     private static MenuItem itemDate;
-    @SuppressLint("StaticFieldLeak")
-    private static TextView errorMessage;
     private static RecyclerView recycler;
     private static int currencyId = 0;
     @Override
@@ -49,7 +46,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         helper = new CurrencyDbHelper(this);
         recycler = findViewById(R.id.recycler);
-        errorMessage = findViewById(R.id.sad_message_textView);
         recycler.setLayoutManager(new LinearLayoutManager(this));
         update();
     }
@@ -84,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
     }
 //=================================================================================================
     public static class JsonMaster {
+        private String key;
         private final HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         private final OkHttpClient.Builder client = new OkHttpClient.Builder()
                         .addInterceptor(interceptor);
@@ -102,13 +99,16 @@ public class MainActivity extends AppCompatActivity {
         }
         private Call<Currency> callSelector() {
             Call<Currency> call = jsonHolderApi.getLatest();
+            key = DbSchema.EurTable.KEY;
             switch (currencyId) {
                 case 1: {
                     call = jsonHolderApi.getLatestRUB();
+                    key = DbSchema.RubTable.KEY;
                     break;
                 }
                 case 2: {
                     call = jsonHolderApi.getLatestUSD();
+                    key = DbSchema.UsdTable.KEY;
                     break;
                 }
             }
@@ -127,19 +127,21 @@ public class MainActivity extends AppCompatActivity {
                 }
                 @Override
                 public void onFailure(@Nullable Call<Currency> call, @Nullable Throwable t) {
-                    if (t != null) {
-                        errorMessage.setText(t.getMessage());
-                    }
+                    failureUpdate();
                 }
             });
         }
         private void update(List<Item> list) {
             if (list != null && list.size() != 0) {
-                Item item = list.get(0);
                 helper.loadItems(helper.updateChanges(list));
-                recycler.setAdapter(new CurrencyAdapter(helper.getItems(item)));
-                itemDate.setTitle(item.getDate());
+                recycler.setAdapter(new CurrencyAdapter(helper.getItems(key)));
+                itemDate.setTitle(list.get(0).getDate());
             }
+        }
+        private void failureUpdate() {
+            List<Item> items = helper.getItems(key);
+            recycler.setAdapter(new CurrencyAdapter(items));
+            itemDate.setTitle(items.get(0).getDate());
         }
     }
 }

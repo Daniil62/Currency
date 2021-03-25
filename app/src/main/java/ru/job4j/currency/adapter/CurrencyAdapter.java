@@ -17,6 +17,14 @@ public class CurrencyAdapter extends RecyclerView.Adapter<CurrencyAdapter.Curren
     public CurrencyAdapter(List<Item> list) {
         this.list = list;
     }
+    @Override
+    public int getItemViewType(int position) {
+        return position;
+    }
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
     @NonNull
     @Override
     public CurrencyHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
