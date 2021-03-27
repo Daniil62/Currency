@@ -23,13 +23,9 @@ import ru.job4j.currency.adapter.CurrencyAdapter;
 import ru.job4j.currency.model.Currency;
 import ru.job4j.currency.model.Item;
 import ru.job4j.currency.service.CurrencyPullService;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -44,8 +40,6 @@ public class MainActivity extends AppCompatActivity {
     private static MenuItem itemDate;
     private static RecyclerView recycler;
     private static int currencyId = 0;
-    private AlarmManager manager;
-    private PendingIntent pendingIntent;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,17 +51,7 @@ public class MainActivity extends AppCompatActivity {
     }
     public void update() {
         Intent intent = new Intent(this, CurrencyPullService.class);
-        this.manager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
-        this.pendingIntent =
-                PendingIntent.getService(this, 0, intent, 0);
-        manager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                SystemClock.elapsedRealtime(), 5000, pendingIntent);
- //       startService(new Intent(this, CurrencyPullService.class));
-    }
-    private void stopUpdate() {
-        if (manager != null && pendingIntent != null) {
-            manager.cancel(pendingIntent);
-        }
+        CurrencyPullService.enqueueWork(this, intent);
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -91,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.refresh_menu_button) {
-            stopUpdate();
+            update();
         }
         return super.onOptionsItemSelected(item);
     }

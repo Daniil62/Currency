@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="ru.job4j.currency">
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -11,7 +12,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Currency"
         tools:ignore="AllowBackup">
-        <service android:name=".service.CurrencyPullService"/>
+        <service android:name=".service.CurrencyPullService"
+            android:permission="android.permission.BIND_JOB_SERVICE"/>
         <activity android:name=".activity.MainActivity"
             android:screenOrientation="nosensor">
             <intent-filter>

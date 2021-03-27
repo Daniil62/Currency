@@ -1,20 +1,19 @@
 package ru.job4j.currency.service;
 
-import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
-import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.core.app.JobIntentService;
 import ru.job4j.currency.activity.MainActivity;
 
-public class CurrencyPullService extends IntentService {
-    private static final String TAG = CurrencyPullService.class.getName();
+public class CurrencyPullService extends JobIntentService {
     private final MainActivity.JsonMaster jsonMaster = new MainActivity.JsonMaster();
-    public CurrencyPullService() {
-        super("CurrencyPullService");
-    }
+    private static final int JOB_ID = 1000;
     @Override
-    protected void onHandleIntent(@Nullable Intent intent) {
+    protected void onHandleWork(@NonNull Intent intent) {
         jsonMaster.loader();
-        Log.d(TAG, "execute a task in a service");
+    }
+    public static void enqueueWork(Context context, Intent intent) {
+        enqueueWork(context, CurrencyPullService.class, JOB_ID, intent);
     }
 }
